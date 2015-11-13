@@ -5,10 +5,12 @@ import (
 )
 
 type Disk struct {
-	All        uint64 `json:"all"`
-	Used       uint64 `json:"used"`
-	Free       uint64 `json:"free"`
-	FreeInodes uint64 `json:"freeInodes"`
+	Size       uint64 `json:"size"`
+	SizeUsed   uint64 `json:"size_used"`
+	SizeFree   uint64 `json:"size_free"`
+	Inodes     uint64 `json:"inodes"`
+	InodesUsed uint64 `json:"inodes_used"`
+	InodesFree uint64 `json:"inodes_free"`
 }
 
 func ReadDisk(path string) (*Disk, error) {
@@ -18,9 +20,11 @@ func ReadDisk(path string) (*Disk, error) {
 		return nil, err
 	}
 	disk := Disk{}
-	disk.All = fs.Blocks * uint64(fs.Bsize)
-	disk.Free = fs.Bfree * uint64(fs.Bsize)
-	disk.Used = disk.All - disk.Free
-	disk.FreeInodes = fs.Ffree
+	disk.Size = fs.Blocks * uint64(fs.Bsize)
+	disk.SizeFree = fs.Bfree * uint64(fs.Bsize)
+	disk.SizeUsed = disk.Size - disk.SizeFree
+	disk.Inodes = fs.Files
+	disk.InodesFree = fs.Ffree
+	disk.InodesUsed = fs.Files - fs.Ffree
 	return &disk, nil
 }
