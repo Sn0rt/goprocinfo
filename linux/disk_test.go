@@ -8,7 +8,4 @@ func TestDisk(t *testing.T) {
 	if err != nil {
 		t.Fatal("disk read fail")
 	}
-	if disk.Free <= 0 {
-		t.Log("no good")
-	}
 }
