@@ -2,8 +2,7 @@ package linux
 
 import (
 	"io/ioutil"
-	"os"
-	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -28,27 +27,25 @@ func ReadMaxPID(path string) (uint64, error) {
 
 }
 
-func ListPID(path string, max uint64) ([]uint64, error) {
+type UInt64Slice []uint64
 
-	l := make([]uint64, 0, 5)
+func (p UInt64Slice) Len() int           { return len(p) }
+func (p UInt64Slice) Less(i, j int) bool { return p[i] < p[j] }
+func (p UInt64Slice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
-	for i := uint64(1); i <= max; i++ {
-
-		p := filepath.Join(path, strconv.FormatUint(i, 10))
-
-		s, err := os.Stat(p)
-
-		if err != nil && !os.IsNotExist(err) {
-			return nil, err
-		}
-
-		if err != nil || !s.IsDir() {
-			continue
-		}
-
-		l = append(l, i)
-
+func ListPID(path string) ([]uint64, error) {
+	pids := make([]uint64, 0, 5)
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		return pids, err
 	}
-
-	return l, nil
+	for _, file := range files {
+		if file.IsDir() {
+			if name, err := strconv.Atoi(file.Name()); err == nil {
+				pids = append(pids, uint64(name))
+			}
+		}
+	}
+	sort.Sort(UInt64Slice(pids))
+	return pids, nil
 }

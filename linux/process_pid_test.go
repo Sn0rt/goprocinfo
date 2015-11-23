@@ -22,7 +22,7 @@ func TestMaxPID(t *testing.T) {
 
 func TestListPID(t *testing.T) {
 
-	list, err := ListPID("proc", 32768)
+	list, err := ListPID("proc")
 
 	if err != nil {
 		t.Fatal("list pid fail", err)
@@ -35,4 +35,11 @@ func TestListPID(t *testing.T) {
 	}
 
 	t.Logf("%+v", list)
+}
+
+func BenchmarkListPID(t *testing.B) {
+	_, err := ListPID("proc")
+	if err != nil {
+		t.Fatal("list pid fail", err)
+	}
 }
